@@ -3030,7 +3030,7 @@ function forum_make_mail_post($course, $cm, $forum, $discussion, $post, $userfro
                               $ownpost=false, $reply=false, $link=false, $rate=false, $footer="") {
 
     global $CFG, $OUTPUT;
-
+   $hola = "hello world";
     $modcontext = context_module::instance($cm->id);
 
     if (!isset($userto->viewfullnames[$forum->id])) {
@@ -3058,7 +3058,7 @@ function forum_make_mail_post($course, $cm, $forum, $discussion, $post, $userfro
     } else {
         $output .= '<td class="topic starter">';
     }
-    $output .= '<div class="subject">'.format_string($post->subject).'</div>';
+    $output .= '.<div class="subject">'.format_string($post->subject).'</div>';
 
     $fullname = fullname($userfrom, $viewfullnames);
     $by = new stdClass();
@@ -3679,6 +3679,19 @@ function forum_print_discussion_header(&$post, $forum, $group=-1, $datestring=""
     static $rowcount;
     static $strmarkalldread;
 
+    //facebook share button to share forum discussions. it also includes a circular design
+    $fb_button_forum = '<div class="fb-share-button" data-href= "'.$CFG->wwwroot.'/mod/forum/discuss.php?d='.$post->discussion.'>'.$post->subject.' " data-layout="button" style="float:right;overflow:hidden;width:20px;height:20px;border-radius:12px;border:2px solid #d4d4d4;"></div>';
+    $fb_sdk = '<div id="fb-root"></div><script>(function(d, s, id) {
+                       var js, fjs = d.getElementsByTagName(s)[0];
+                       if (d.getElementById(id)) return;
+                       js = d.createElement(s); js.id = id;
+                       js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.3";
+                       fjs.parentNode.insertBefore(js, fjs);
+                       }(document, "script", "facebook-jssdk"));</script>';
+    //twitter button por sharing forum discussions, and it's circular design
+    $twt_button_forum = '<div><div style="float:right;border-radius:12px;width:20px;height:20px;border:2px solid #d4d4d4;overflow:hidden"> <a href="https://twitter.com/share" class="twitter-share-button"  data-text="Tema:'.$post->subject.' en el foro del Curso:'.$COURSE->fullname.' " data-url="'.$CFG->wwwroot.'/mod/forum/discuss.php?d='.$post->discussion.'">'.$post->subject.'" data-via="" data-lang="en" data-count="none" >Tweet</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?"http":"https";if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document, "script", "twitter-wjs");</script></div>';
+    
+    
     if (empty($modcontext)) {
         if (!$cm = get_coursemodule_from_instance('forum', $forum->id, $forum->course)) {
             print_error('invalidcoursemodule');
@@ -3700,9 +3713,10 @@ function forum_print_discussion_header(&$post, $forum, $group=-1, $datestring=""
 
     // Topic
     echo '<td class="topic starter">';
-    echo '<a href="'.$CFG->wwwroot.'/mod/forum/discuss.php?d='.$post->discussion.'">'.$post->subject.'</a>';
-    echo "</td>\n";
-
+    echo '<a href="'.$CFG->wwwroot.'/mod/forum/discuss.php?d='.$post->discussion.'">'.$post->subject.'</a>'.$fb_button_forum.$twt_button_forum.$fb_sdk;
+    echo "</td>";
+    
+    
     // Picture
     $postuser = new stdClass();
     $postuserfields = explode(',', user_picture::fields());

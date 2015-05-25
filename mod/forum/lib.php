@@ -3678,19 +3678,40 @@ function forum_print_discussion_header(&$post, $forum, $group=-1, $datestring=""
 
     static $rowcount;
     static $strmarkalldread;
-
-    //facebook share button to share forum discussions. it also includes a circular design
-    $fb_button_forum = '<div class="fb-share-button" data-href= "'.$CFG->wwwroot.'/mod/forum/discuss.php?d='.$post->discussion.'>'.$post->subject.' " data-layout="button" style="float:right;overflow:hidden;width:20px;height:20px;border-radius:12px;border:2px solid #d4d4d4;"></div>';
-    $fb_sdk = '<div id="fb-root"></div><script>(function(d, s, id) {
-                       var js, fjs = d.getElementsByTagName(s)[0];
-                       if (d.getElementById(id)) return;
-                       js = d.createElement(s); js.id = id;
-                       js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.3";
-                       fjs.parentNode.insertBefore(js, fjs);
-                       }(document, "script", "facebook-jssdk"));</script>';
-    //twitter button por sharing forum discussions, and it's circular design
-    $twt_button_forum = '<div><div style="float:right;border-radius:12px;width:20px;height:20px;border:2px solid #d4d4d4;overflow:hidden"> <a href="https://twitter.com/share" class="twitter-share-button"  data-text="Tema:'.$post->subject.' en el foro del Curso:'.$COURSE->fullname.' " data-url="'.$CFG->wwwroot.'/mod/forum/discuss.php?d='.$post->discussion.'">'.$post->subject.'" data-via="" data-lang="en" data-count="none" >Tweet</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?"http":"https";if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document, "script", "twitter-wjs");</script></div>';
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+    $subject_url = format_string("$CFG->wwwroot/mod/forum/discuss.php?d=$post->discussion>$post->subject",true); //format string of subject url to be share.....only way that works
+    $subject = get_string('subject', 'mod_forum');
+    $forum_course = get_string('forumcourse','mod_forum');
     
+    $media = '<div class="share-button share-button-top_'.$post->id.'" style="float:right;width:70px;"></div>';
+    
+    $media_sdk_forum = '<script src="share.js"></script>
+	<script> config_'.$post->id.' = {
+		url:"'.$subject_url.'",
+		title: "PDF Share",
+		description: "'.$subject.':'.$post->subject.' '.$forum_course.':'.$COURSE->fullname.'",
+		ui :{
+			flyout: "top center",
+		},
+		networks: {
+			facebook: {
+				enabled: true
+			},
+				
+			twitter: {
+				enabled: true
+			},
+			pinterest: {
+				enabled: false
+			},
+			email: {
+				enabled: false
+			}
+		}
+	}
+	var share_button_top_'.$post->id.' = new Share(".share-button-top_'.$post->id.'", config_'.$post->id.');
+	</script>';
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////         
     
     if (empty($modcontext)) {
         if (!$cm = get_coursemodule_from_instance('forum', $forum->id, $forum->course)) {
@@ -3713,7 +3734,7 @@ function forum_print_discussion_header(&$post, $forum, $group=-1, $datestring=""
 
     // Topic
     echo '<td class="topic starter">';
-    echo '<a href="'.$CFG->wwwroot.'/mod/forum/discuss.php?d='.$post->discussion.'">'.$post->subject.'</a>'.$fb_button_forum.$twt_button_forum.$fb_sdk;
+    echo '<a href="'.$CFG->wwwroot.'/mod/forum/discuss.php?d='.$post->discussion.'">'.$post->subject.'</a>'.$media.$media_sdk_forum;  //aded the $media.$media_sdk to share discussion
     echo "</td>";
     
     

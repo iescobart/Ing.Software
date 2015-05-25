@@ -733,7 +733,7 @@ class core_course_renderer extends plugin_renderer_base {
      * @return string
      */
     public function course_section_cm_name(cm_info $mod, $displayoptions = array()) {
-        global $USER, $DB, $CFG, $COURSE, $ROLE; 
+        global $USER, $DB, $CFG, $COURSE, $ROLE; // added $user, $db, $course, $role
   
         $output = '';
         if (!$mod->uservisible && empty($mod->availableinfo)) {
@@ -747,7 +747,8 @@ class core_course_renderer extends plugin_renderer_base {
 
         //Accessibility: for files get description via icon, this is very ugly hack!
         $instancename = $mod->get_formatted_name();
-        
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////// 
         //get finalgrade for the mod
         $modgrade = $DB->get_record_sql("SELECT g.finalgrade as 'finalgrade'
         		FROM {grade_grades} g
@@ -756,6 +757,7 @@ class core_course_renderer extends plugin_renderer_base {
         		WHERE ('$USER->id' = g.userid AND '$instancename'= gi.itemname)");
         $modgrades = $modgrade->finalgrade;
         $modgrades = floatval($modgrades); //getting float of the finalgrade
+////////////////////////////////////////////////////////////////////////////////////////////////////////
         
         $altname = $mod->modfullname;
         // Avoid unnecessary duplication: if e.g. a forum name already
@@ -808,38 +810,79 @@ class core_course_renderer extends plugin_renderer_base {
         $activitylink = html_writer::empty_tag('img', array('src' => $mod->get_icon_url(),
                 'class' => 'iconlarge activityicon', 'alt' => ' ', 'role' => 'presentation')) . $accesstext .
                 html_writer::tag('span', $instancename . $altname, array('class' => 'instancename'));
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////        
+        $media = '<div class="share-button share-button-top_'.$mod->id.'" style="float:left;width:70px;"></div>';
         
-       
+        $media_sdk_pdf = '<script src="share.js"></script>
+	<script> config_'.$mod->id.' = {
+		url:"'.urldecode($url).'",
+		title: "PDF Share",
+		description: "'.$instancename.' en Course:'.$COURSE->fullname.'",
+		ui :{
+			flyout: "middle left",
+		},
+		networks: {
+			facebook: {
+				enabled: true
+			},
+			twitter: {
+				enabled: true
+			},
+			pinterest: {
+				enabled: false
+			},
+			email: {
+				enabled: false
+			}
+		}
+	}
+	var share_button_top_'.$mod->id.' = new Share(".share-button-top_'.$mod->id.'", config_'.$mod->id.');
+	</script>';
         
-        //facebook share button to share pdf's and the sdk for it to work. it also includes a circular design
-        $fb_button_pdf = '<div class="fb-share-button" data-href="'.urldecode($url).'" data-layout="button" style="overflow:hidden;width:20px;height:20px;border-radius:12px;border:2px solid #d4d4d4;"></div>';
-        $fb_sdk = '<div id="fb-root"></div><script>(function(d, s, id) {
-                       var js, fjs = d.getElementsByTagName(s)[0];
-                       if (d.getElementById(id)) return;
-                       js = d.createElement(s); js.id = id;
-                       js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.3";
-                       fjs.parentNode.insertBefore(js, fjs);
-                       }(document, "script", "facebook-jssdk"));</script>';
-        //twitter button por sharing pdf's, and it's circular design
-        $twt_button_pdf = '<div><div style="border-radius:12px;width:20px;height:20px;border:2px solid #d4d4d4;overflow:hidden"> <a href="https://twitter.com/share" class="twitter-share-button"  data-text="'.$instancename.' en Course:'.$COURSE->fullname.'  " data-url="'.urldecode($url).'" data-via="" data-lang="en" data-count="none" >Tweet</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?"http":"https";if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document, "script", "twitter-wjs");</script></div>';
-        
-        //buttons for sharing grades on quizzes
-        $fb_button_quiz = '<div class="fb-share-button" data-href="'.urldecode($url).'" data-layout="button" style="overflow:hidden;width:20px;height:20px;border-radius:12px;border:2px solid #d4d4d4;"></div>';
-        $twt_button_quiz = '<div><div style="border-radius:12px;width:20px;height:20px;border:2px solid #d4d4d4;overflow:hidden"> <a href="https://twitter.com/share" class="twitter-share-button" id="twt" data-text=" Obtuve un '.$modgrades.' en '.$instancename.' en el Curso:'.$COURSE->fullname.'  " data-url="'.urldecode($url).'" data-via="" data-lang="en" data-count="none" >Tweet</a> <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?"http":"https";if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document, "script", "twitter-wjs");</script></div>';
-        
+        $media_sdk_grades = '<script src="share.js"></script>
+	<script> config_'.$mod->id.' = {
+		url:"'.urldecode($url).'",
+		title: "PDF Share",
+		description: " Obtuve un '.$modgrades.' en '.$instancename.' en el Curso:'.$COURSE->fullname.'",
+		ui :{
+			flyout: "middle left",
+		},
+		networks: {
+			facebook: {
+				enabled: true
+			},
+			twitter: {
+				enabled: true
+			},
+			pinterest: {
+				enabled: false
+			},
+			email: {
+				enabled: false
+			}
+		}
+	}
+	var share_button_top_'.$mod->id.' = new Share(".share-button-top_'.$mod->id.'", config_'.$mod->id.');
+	</script>';
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////        
+         
         if ($mod->uservisible) {
-        
+        	
         	if($mod->modfullname == 'File'){  //only selecting 'files'(for now) like pdf's to share (url)
-        	$output .= $fb_button_pdf.$fb_sdk.$twt_button_pdf.html_writer::link($url, $activitylink, array('class' => $linkclasses, 'onclick' => $onclick)) .
-                    $groupinglabel;
+
+        	$output .= $media.$media_sdk_pdf.html_writer::link($url, $activitylink, array('class' => $linkclasses, 'onclick' => $onclick)) .
+                    $groupinglabel; //added $media.$media_sdk before the html_writer
         	}
         	
-        else if($mod->modfullname == 'Quiz' or $mod->modfullname == 'Emarking') {
+        else if($mod->modfullname == 'Quiz' or $mod->modfullname == 'Emarking') { ////only selecting activities that require grading like quizzes and emarking activities
         	
-        	if($modgrades == '0' or $modgrades == NULL){
-        		$twt_button_quiz = '';
-        	}
-        	$output .=  $twt_button_quiz . html_writer::link($url, $activitylink, array('class' => $linkclasses, 'onclick' => $onclick)) ;
+        	if($modgrades == '0' or $modgrades == NULL){ //if no finalgrade, no button to share
+        	
+        		$media = '';
+        		$media_sdk_grades = '';
+        	}//else, share grade
+        	$output .=  $media.$media_sdk_grades.html_writer::link($url, $activitylink, array('class' => $linkclasses, 'onclick' => $onclick)) ;
         }	
         
         else {

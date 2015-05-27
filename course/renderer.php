@@ -812,7 +812,7 @@ class core_course_renderer extends plugin_renderer_base {
                 html_writer::tag('span', $instancename . $altname, array('class' => 'instancename'));
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////        
-        $media = '<div class="share-button share-button-top_'.$mod->id.'" style="float:left;width:70px;"></div>';
+        $media = '<div class="share-button share-button-top_'.$mod->id.'" style="float:left;width:70px;"></div>'; //creating the class for the share button
         
         $media_sdk_pdf = '<script src="share.js"></script>
 	<script> config_'.$mod->id.' = {
@@ -838,7 +838,9 @@ class core_course_renderer extends plugin_renderer_base {
 		}
 	}
 	var share_button_top_'.$mod->id.' = new Share(".share-button-top_'.$mod->id.'", config_'.$mod->id.');
-	</script>';
+	</script>'; //first part creates the sdk calling the "share.js" for it to work. extract the data to share (url, description, title) and then enables or disables the social medias. we are only using Facebook, Twitter, and Google+
+ //this sdk is for sharing pdf's or file's as you can see. it shares the name of the file and the name of the course, with the corresponding url       
+        //every $post->id used everywhere on the script, it's to make unique configurations for each button, to avoid repeating them and to avoid overwriting the configs
         
         $media_sdk_grades = '<script src="share.js"></script>
 	<script> config_'.$mod->id.' = {
@@ -865,24 +867,28 @@ class core_course_renderer extends plugin_renderer_base {
 	}
 	var share_button_top_'.$mod->id.' = new Share(".share-button-top_'.$mod->id.'", config_'.$mod->id.');
 	</script>';
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////        
-         
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////   
+ //first part creates the sdk calling the "share.js" for it to work. extract the data to share (url, description, title) and then enables or disables the social medias. we are only using Facebook, Twitter, and Google+
+ //this sdk is for sharing grades from quizzes or emarking activities as you can see. it shares the grade of the activity, name of the activity, course name, and the corresponding url       
+//every $post->id used everywhere on the script, it's to make unique configurations for each button, to avoid repeating them and to avoid overwriting the configs 
+                
         if ($mod->uservisible) {
         	
         	if($mod->modfullname == 'File'){  //only selecting 'files'(for now) like pdf's to share (url)
 
         	$output .= $media.$media_sdk_pdf.html_writer::link($url, $activitylink, array('class' => $linkclasses, 'onclick' => $onclick)) .
-                    $groupinglabel; //added $media.$media_sdk before the html_writer
+                    $groupinglabel; //added $media.$media_sdk before the html_writer => it adds the the share button before the activity module
         	}
         	
         else if($mod->modfullname == 'Quiz' or $mod->modfullname == 'Emarking') { ////only selecting activities that require grading like quizzes and emarking activities
         	
-        	if($modgrades == '0' or $modgrades == NULL){ //if no finalgrade, no button to share
+        	if($modgrades == '0' or $modgrades == NULL){ //if no finalgrade, no button to share (obvious)
         	
-        		$media = '';
-        		$media_sdk_grades = '';
-        	}//else, share grade
-        	$output .=  $media.$media_sdk_grades.html_writer::link($url, $activitylink, array('class' => $linkclasses, 'onclick' => $onclick)) ;
+        		$media = ''; // no class
+        		$media_sdk_grades = ''; // no sdk 
+        	}
+        	//so, if the activity module has final grade, show the share button before the activity module
+        	$output .=  $media.$media_sdk_grades.html_writer::link($url, $activitylink, array('class' => $linkclasses, 'onclick' => $onclick)) ;  //added $media.$media_sdk before the html_writer => it adds the the share button before the activity module
         }	
         
         else {

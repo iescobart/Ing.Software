@@ -3678,12 +3678,12 @@ function forum_print_discussion_header(&$post, $forum, $group=-1, $datestring=""
 
     static $rowcount;
     static $strmarkalldread;
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-    $subject_url = format_string("$CFG->wwwroot/mod/forum/discuss.php?d=$post->discussion>$post->subject",true); //format string of subject url to be share.....only way that works
-    $subject = get_string('subject', 'mod_forum');
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+    $subject_url = format_string("$CFG->wwwroot/mod/forum/discuss.php?d=$post->discussion>$post->subject",true); //format string of subject url to be share.....only way that works for now.
+    $subject = get_string('subject', 'mod_forum'); 
     $forum_course = get_string('forumcourse','mod_forum');
     
-    $media = '<div class="share-button share-button-top_'.$post->id.'" style="float:right;width:70px;"></div>';
+    $media = '<div class="share-button share-button-top_'.$post->id.'" style="float:right;width:70px;"></div>';  //creating the class for the button
     
     $media_sdk_forum = '<script src="share.js"></script>
 	<script> config_'.$post->id.' = {
@@ -3712,7 +3712,10 @@ function forum_print_discussion_header(&$post, $forum, $group=-1, $datestring=""
 	var share_button_top_'.$post->id.' = new Share(".share-button-top_'.$post->id.'", config_'.$post->id.');
 	</script>';
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////         
-    
+//first part creates the sdk calling the "share.js" for it to work. extract the data to share (url, description, title) and then enables or disables the social medias. we are only using Facebook, Twitter, and Google+
+ //this sdk is for sharing the discussions on the forum of the course as you can see. it shares the discussion title, the course name, with the corresponding url   
+//every $post->id used everywhere on the script, it's to make unique configurations for each button, to avoid repeating them and to avoid overwriting the configs  
+
     if (empty($modcontext)) {
         if (!$cm = get_coursemodule_from_instance('forum', $forum->id, $forum->course)) {
             print_error('invalidcoursemodule');
@@ -3734,7 +3737,7 @@ function forum_print_discussion_header(&$post, $forum, $group=-1, $datestring=""
 
     // Topic
     echo '<td class="topic starter">';
-    echo '<a href="'.$CFG->wwwroot.'/mod/forum/discuss.php?d='.$post->discussion.'">'.$post->subject.'</a>'.$media.$media_sdk_forum;  //aded the $media.$media_sdk to share discussion
+    echo '<a href="'.$CFG->wwwroot.'/mod/forum/discuss.php?d='.$post->discussion.'">'.$post->subject.'</a>'.$media.$media_sdk_forum;  //aded the $media.$media_sdk to share discussion after the module activity. looks nicer this way
     echo "</td>";
     
     

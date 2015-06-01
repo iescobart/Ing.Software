@@ -27,3 +27,4 @@
 $string['oncourse'] = 'en el Curso';
 $string['gotgrade'] = 'Obtuve un';
 $string['on'] = 'en';
+$string['pluginname']='ShareMedia';
